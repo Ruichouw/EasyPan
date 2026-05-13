@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { clearToken, getToken, setToken } from "@/utils/auth";
+import { usePermissionStore } from "./permission";
 
 export const useUserStore = defineStore("user", {
   state: () => ({
@@ -14,11 +15,17 @@ export const useUserStore = defineStore("user", {
       this.token = token;
       this.name = name;
       setToken(token);
+
+      const permissionStore = usePermissionStore();
+      permissionStore.setCodes(["user:read"]);
     },
     logout() {
       this.token = "";
       this.name = "";
       clearToken();
+
+      const permissionStore = usePermissionStore();
+      permissionStore.setCodes([]);
     }
   }
 });

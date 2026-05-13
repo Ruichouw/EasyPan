@@ -1,50 +1,116 @@
 <template>
-  <section class="rounded-2xl bg-white p-5 shadow-sm">
-    <h2 class="text-xl font-semibold">用户列表</h2>
-    <p class="mt-2 text-slate-600">zod + vee-validate 表单示例已迁移到此处作为占位。</p>
-
-    <form class="mt-4 grid gap-4" @submit="onSubmit">
+  <section class="space-y-4">
+    <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
-        <label class="mb-1 block text-sm text-slate-700" for="email">邮箱</label>
-        <input id="email" v-model="email" class="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none ring-blue-200 focus:ring" type="email" />
-        <p class="mt-1 text-sm text-red-600">{{ errors.email }}</p>
+        <h2 class="text-xl font-semibold">用户列表</h2>
+        <p class="text-sm text-slate-600">展示用户查询、分页与状态渲染</p>
       </div>
 
-      <div>
-        <label class="mb-1 block text-sm text-slate-700" for="password">密码</label>
-        <input id="password" v-model="password" class="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none ring-blue-200 focus:ring" type="password" />
-        <p class="mt-1 text-sm text-red-600">{{ errors.password }}</p>
+      <form class="flex items-center gap-2" @submit.prevent="onSearch">
+        <input
+          v-model.trim="keywordInput"
+          class="w-64 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-blue-200 focus:ring"
+          placeholder="搜索用户名/邮箱"
+          type="text"
+        />
+        <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700" type="submit">
+          搜索
+        </button>
+      </form>
+    </div>
+
+    <div class="overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <table class="min-w-full divide-y divide-slate-200 text-sm">
+        <thead class="bg-slate-50 text-left text-slate-600">
+          <tr>
+            <th class="px-4 py-3 font-medium">ID</th>
+            <th class="px-4 py-3 font-medium">用户名</th>
+            <th class="px-4 py-3 font-medium">邮箱</th>
+            <th class="px-4 py-3 font-medium">状态</th>
+            <th class="px-4 py-3 font-medium">创建时间</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr v-if="query.isLoading.value">
+            <td class="px-4 py-6 text-slate-500" colspan="5">加载中...</td>
+          </tr>
+          <tr v-else-if="!query.data.value?.items.length">
+            <td class="px-4 py-6 text-slate-500" colspan="5">暂无数据</td>
+          </tr>
+          <tr v-for="item in query.data.value?.items ?? []" :key="item.id" class="hover:bg-slate-50">
+            <td class="px-4 py-3">{{ item.id }}</td>
+            <td class="px-4 py-3">{{ item.name }}</td>
+            <td class="px-4 py-3">{{ item.email }}</td>
+            <td class="px-4 py-3">
+              <span
+                class="rounded-full px-2 py-1 text-xs"
+                :class="item.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-700'"
+              >
+                {{ item.status }}
+              </span>
+            </td>
+            <td class="px-4 py-3">{{ formatDate(item.createdAt) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="flex items-center justify-between text-sm text-slate-600">
+      <p>共 {{ query.data.value?.total ?? 0 }} 条</p>
+      <div class="flex items-center gap-2">
+        <button
+          class="rounded border border-slate-300 px-3 py-1 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+          :disabled="page <= 1"
+          @click="prevPage"
+        >
+          上一页
+        </button>
+        <span>第 {{ page }} 页</span>
+        <button
+          class="rounded border border-slate-300 px-3 py-1 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+          :disabled="(query.data.value?.items.length ?? 0) < pageSize"
+          @click="nextPage"
+        >
+          下一页
+        </button>
       </div>
-
-      <button class="w-fit rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700" type="submit">提交</button>
-    </form>
-
-    <p v-if="submitted" class="mt-4 rounded-lg bg-emerald-50 p-3 text-emerald-700">提交成功：{{ submitted }}</p>
+    </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { useForm } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/zod";
-import { z } from "zod";
+import { computed, ref } from "vue";
+import { useQuery } from "@tanstack/vue-query";
+import { getUserList } from "@/api";
+import { formatDate } from "@/utils/format";
 
-const schema = toTypedSchema(
-  z.object({
-    email: z.string().email("请输入有效邮箱"),
-    password: z.string().min(8, "密码至少 8 位")
-  })
-);
+const page = ref(1);
+const pageSize = 10;
+const keyword = ref("");
+const keywordInput = ref("");
 
-const { defineField, handleSubmit, errors } = useForm({
-  validationSchema: schema
+const queryKey = computed(() => ["users", page.value, pageSize, keyword.value]);
+
+const query = useQuery({
+  queryKey,
+  queryFn: () =>
+    getUserList({
+      page: page.value,
+      pageSize,
+      keyword: keyword.value
+    })
 });
 
-const [email] = defineField("email");
-const [password] = defineField("password");
-const submitted = ref("");
+function onSearch() {
+  page.value = 1;
+  keyword.value = keywordInput.value;
+}
 
-const onSubmit = handleSubmit((values) => {
-  submitted.value = JSON.stringify(values);
-});
+function prevPage() {
+  if (page.value > 1) page.value -= 1;
+}
+
+function nextPage() {
+  page.value += 1;
+}
 </script>
