@@ -1,4 +1,5 @@
 import axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig } from "axios";
+import { clearToken, getToken } from "@/utils/auth";
 
 export interface ApiResponse<T> {
   code: number;
@@ -35,7 +36,7 @@ const instance: AxiosInstance = axios.create({
 });
 
 instance.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access_token");
+  const token = getToken();
   if (token) {
     config.headers.set("Authorization", `Bearer ${token}`);
   }
@@ -48,6 +49,15 @@ instance.interceptors.response.use(
     const status = error.response?.status ?? 500;
     const raw = error.response?.data;
     const body = (typeof raw === "object" && raw ? raw : {}) as ApiErrorBody;
+
+    if (status === 401) {
+      clearToken();
+      if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+        const redirect = encodeURIComponent(window.location.pathname + window.location.search);
+        window.location.href = `/login?redirect=${redirect}`;
+      }
+    }
+
     return Promise.reject(new ApiError(status, body, body.message ?? body.error ?? error.message));
   }
 );

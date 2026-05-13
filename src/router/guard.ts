@@ -1,14 +1,23 @@
 import type { Router } from "vue-router";
+import { getToken } from "@/utils/auth";
 
 export function setupRouterGuard(router: Router) {
   router.beforeEach((to) => {
-    const token = localStorage.getItem("access_token");
-    if (to.path !== "/login" && !token) {
-      return "/login";
+    const token = getToken();
+    const requiresAuth = to.path !== "/login";
+
+    if (requiresAuth && !token) {
+      return {
+        path: "/login",
+        query: { redirect: to.fullPath }
+      };
     }
+
     if (to.path === "/login" && token) {
-      return "/dashboard";
+      const redirect = typeof to.query.redirect === "string" ? to.query.redirect : "/dashboard";
+      return redirect;
     }
+
     return true;
   });
 }

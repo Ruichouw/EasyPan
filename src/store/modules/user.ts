@@ -1,18 +1,24 @@
 import { defineStore } from "pinia";
+import { clearToken, getToken, setToken } from "@/utils/auth";
 
 export const useUserStore = defineStore("user", {
   state: () => ({
-    token: "",
+    token: getToken(),
     name: ""
   }),
+  getters: {
+    isLoggedIn: (state) => Boolean(state.token)
+  },
   actions: {
-    setToken(token: string) {
+    login(token: string, name = "") {
       this.token = token;
-      localStorage.setItem("access_token", token);
+      this.name = name;
+      setToken(token);
     },
-    clearToken() {
+    logout() {
       this.token = "";
-      localStorage.removeItem("access_token");
+      this.name = "";
+      clearToken();
     }
   }
 });

@@ -4,7 +4,7 @@ import App from "./App.vue";
 import router from "./router";
 import { pinia } from "./store";
 import { setupDirectives } from "./directives";
-import "./styles/index.scss";
+import "./styles/index.css";
 
 const app = createApp(App);
 const queryClient = new QueryClient();
