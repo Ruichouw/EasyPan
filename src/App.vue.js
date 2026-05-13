@@ -9,21 +9,30 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
-    ...{ class: "mx-auto max-w-5xl p-4 md:p-8" },
+    ...{ class: "mx-auto max-w-6xl p-4 md:p-8" },
 });
 /** @type {__VLS_StyleScopedClasses['mx-auto']} */ ;
-/** @type {__VLS_StyleScopedClasses['max-w-5xl']} */ ;
+/** @type {__VLS_StyleScopedClasses['max-w-6xl']} */ ;
 /** @type {__VLS_StyleScopedClasses['p-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['md:p-8']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.header, __VLS_intrinsics.header)({
-    ...{ class: "mb-8 rounded-2xl bg-white/80 p-5 shadow-md backdrop-blur" },
+    ...{ class: "mb-8 rounded-2xl bg-white/90 p-5 shadow-md backdrop-blur" },
 });
 /** @type {__VLS_StyleScopedClasses['mb-8']} */ ;
 /** @type {__VLS_StyleScopedClasses['rounded-2xl']} */ ;
-/** @type {__VLS_StyleScopedClasses['bg-white/80']} */ ;
+/** @type {__VLS_StyleScopedClasses['bg-white/90']} */ ;
 /** @type {__VLS_StyleScopedClasses['p-5']} */ ;
 /** @type {__VLS_StyleScopedClasses['shadow-md']} */ ;
 /** @type {__VLS_StyleScopedClasses['backdrop-blur']} */ ;
+__VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
+    ...{ class: "flex flex-wrap items-center justify-between gap-3" },
+});
+/** @type {__VLS_StyleScopedClasses['flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex-wrap']} */ ;
+/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['justify-between']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-3']} */ ;
+__VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
 __VLS_asFunctionalElement1(__VLS_intrinsics.h1, __VLS_intrinsics.h1)({
     ...{ class: "text-3xl font-bold text-slate-900" },
 });
@@ -32,11 +41,23 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.h1, __VLS_intrinsics.h1)({
 /** @type {__VLS_StyleScopedClasses['text-slate-900']} */ ;
 (__VLS_ctx.appStore.title);
 __VLS_asFunctionalElement1(__VLS_intrinsics.p, __VLS_intrinsics.p)({
-    ...{ class: "mt-2 text-slate-600" },
+    ...{ class: "mt-1 text-slate-600" },
 });
-/** @type {__VLS_StyleScopedClasses['mt-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['mt-1']} */ ;
 /** @type {__VLS_StyleScopedClasses['text-slate-600']} */ ;
-__VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
+__VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
+    ...{ onClick: (__VLS_ctx.appStore.toggleSidebar) },
+    ...{ class: "rounded-lg border border-slate-300 px-4 py-2 text-slate-700 hover:bg-slate-50" },
+});
+/** @type {__VLS_StyleScopedClasses['rounded-lg']} */ ;
+/** @type {__VLS_StyleScopedClasses['border']} */ ;
+/** @type {__VLS_StyleScopedClasses['border-slate-300']} */ ;
+/** @type {__VLS_StyleScopedClasses['px-4']} */ ;
+/** @type {__VLS_StyleScopedClasses['py-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-slate-700']} */ ;
+/** @type {__VLS_StyleScopedClasses['hover:bg-slate-50']} */ ;
+(__VLS_ctx.appStore.sidebarOpen ? "开" : "关");
+__VLS_asFunctionalElement1(__VLS_intrinsics.nav, __VLS_intrinsics.nav)({
     ...{ class: "mt-4 flex gap-3" },
 });
 /** @type {__VLS_StyleScopedClasses['mt-4']} */ ;
@@ -63,7 +84,7 @@ const __VLS_2 = __VLS_1({
 /** @type {__VLS_StyleScopedClasses['hover:bg-blue-700']} */ ;
 const { default: __VLS_5 } = __VLS_3.slots;
 // @ts-ignore
-[appStore,];
+[appStore, appStore, appStore,];
 var __VLS_3;
 let __VLS_6;
 /** @ts-ignore @type { | typeof __VLS_components.RouterLink | typeof __VLS_components.RouterLink} */
