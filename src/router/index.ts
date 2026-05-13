@@ -1,13 +1,12 @@
-import { createRouter, createWebHistory } from "vue-router";
-import HomeView from "@/views/HomeView.vue";
-import FormView from "@/views/FormView.vue";
+import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
+import { routes } from "./routes";
+import { setupRouterGuard } from "./guard";
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: [
-    { path: "/", name: "home", component: HomeView },
-    { path: "/form", name: "form", component: FormView }
-  ]
+  routes: routes as RouteRecordRaw[]
 });
+
+setupRouterGuard(router);
 
 export default router;

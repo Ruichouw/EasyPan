@@ -1,28 +1,11 @@
 import { useQuery } from "@tanstack/vue-query";
-import { queryKeys } from "@/constants/query-keys";
-
-type HealthResponse = {
-  status: string;
-  timestamp: string;
-};
+import { queryKeys } from "@/constants";
+import { getSystemHealth, type HealthResult } from "@/api";
 
 export function useHealthQuery() {
-  return useQuery<HealthResponse>({
+  return useQuery<HealthResult>({
     queryKey: queryKeys.health,
-    queryFn: async () => {
-      const response = await fetch("/api/system/options", {
-        credentials: "include"
-      });
-
-      if (!response.ok) {
-        throw new Error("health check failed");
-      }
-
-      return {
-        status: "ok",
-        timestamp: new Date().toISOString()
-      };
-    },
+    queryFn: getSystemHealth,
     staleTime: 15_000,
     retry: 1
   });

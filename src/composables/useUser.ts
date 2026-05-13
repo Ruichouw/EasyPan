@@ -1,11 +1,10 @@
 import { useQuery } from "@tanstack/vue-query";
-import { queryKeys } from "@/constants";
 import { getSession } from "@/api";
+import { queryKeys } from "@/constants";
 
-export function useSessionQuery() {
+export function useUser() {
   return useQuery({
     queryKey: queryKeys.session,
-    queryFn: getSession,
-    staleTime: 30_000
+    queryFn: getSession
   });
 }
