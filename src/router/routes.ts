@@ -23,18 +23,6 @@ export const routes: RouteRecordRaw[] = [
         name: "trash",
         meta: { title: "回收站", requiresAuth: true } satisfies RouteMetaCustom,
         component: () => import("@/views/trash/index.vue")
-      },
-      {
-        path: "user/list",
-        name: "user-list",
-        meta: { title: "用户列表", requiresAuth: true, permission: "user:read" } satisfies RouteMetaCustom,
-        component: () => import("@/views/user/list.vue")
-      },
-      {
-        path: "user/detail/:id",
-        name: "user-detail",
-        meta: { title: "用户详情", requiresAuth: true, permission: "user:read" } satisfies RouteMetaCustom,
-        component: () => import("@/views/user/detail.vue")
       }
     ]
   },

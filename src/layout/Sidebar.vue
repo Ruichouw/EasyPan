@@ -23,8 +23,6 @@
       <RouterLink class="nav-item" :class="{ 'nav-item-active': activeType === 'videos' }" :to="{ path: '/files', query: typeQuery('videos') }">视频</RouterLink>
       <RouterLink class="nav-item" :class="{ 'nav-item-active': activeType === 'music' }" :to="{ path: '/files', query: typeQuery('music') }">音乐</RouterLink>
       <RouterLink class="nav-item" :class="{ 'nav-item-active': activeType === 'documents' }" :to="{ path: '/files', query: typeQuery('documents') }">文档</RouterLink>
-      <a class="nav-item" href="javascript:void(0)">我的分享</a>
-      <a class="nav-item" href="javascript:void(0)">任务</a>
       <RouterLink class="nav-item" :class="{ 'nav-item-active': isTrash }" to="/trash">回收站</RouterLink>
     </nav>
 

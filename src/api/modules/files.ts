@@ -36,6 +36,23 @@ interface FileListApiPayload {
   pageSize?: number;
 }
 
+interface CreateFilePayload {
+  name: string;
+  type: string;
+  size?: number;
+  parent: string;
+  dirtype: number;
+}
+
+interface CreateFileApiResult extends Record<string, unknown> {
+  uploadUrl?: string;
+}
+
+export interface CreateFileResult {
+  item: FileItem;
+  uploadUrl?: string;
+}
+
 function normalizeFileItem(raw: Record<string, unknown>): FileItem {
   return {
     id: String(raw.id ?? ""),
@@ -80,4 +97,102 @@ export async function getFileList(query: FileListQuery = {}): Promise<FileListRe
   });
 
   return normalizeFileList(data, page, pageSize);
+}
+
+export async function createFolder(name: string, parent = ""): Promise<FileItem> {
+  const data = await http.post<Record<string, unknown>, CreateFilePayload>("api/objects", {
+    name,
+    type: "folder",
+    parent,
+    dirtype: 1
+  });
+  return normalizeFileItem(data);
+}
+
+export async function createUploadDraft(file: File, parent = ""): Promise<CreateFileResult> {
+  const data = await http.post<CreateFileApiResult, CreateFilePayload>("api/objects", {
+    name: file.name,
+    type: file.type || "application/octet-stream",
+    size: file.size,
+    parent,
+    dirtype: 0
+  });
+  return {
+    item: normalizeFileItem(data),
+    uploadUrl: data.uploadUrl
+  };
+}
+
+export async function putFileToUploadUrl(uploadUrl: string, file: File): Promise<void> {
+  await fetch(uploadUrl, {
+    method: "PUT",
+    body: file,
+    headers: {
+      "Content-Type": file.type || "application/octet-stream"
+    }
+  });
+}
+
+export async function confirmFileUpload(id: string): Promise<FileItem> {
+  const data = await http.patch<Record<string, unknown>, { action: "confirm" }>(`api/objects/${id}`, {
+    action: "confirm"
+  });
+  return normalizeFileItem(data);
+}
+
+export async function cancelFileUpload(id: string): Promise<void> {
+  await http.patch<{ id: string; cancelled: boolean }, { action: "cancel" }>(`api/objects/${id}`, {
+    action: "cancel"
+  });
+}
+
+export async function restoreFile(id: string): Promise<FileItem> {
+  const data = await http.patch<Record<string, unknown>, { action: "restore" }>(`api/objects/${id}`, {
+    action: "restore"
+  });
+  return normalizeFileItem(data);
+}
+
+export async function deleteFilePermanently(id: string): Promise<{ id: string; deleted: boolean; purged?: number }> {
+  return http.delete<{ id: string; deleted: boolean; purged?: number }>(`api/objects/${id}`);
+}
+
+export async function renameFile(id: string, name: string): Promise<FileItem> {
+  const data = await http.patch<Record<string, unknown>, { action: "update"; name: string }>(`api/objects/${id}`, {
+    action: "update",
+    name
+  });
+  return normalizeFileItem(data);
+}
+
+export async function moveFile(id: string, parent: string): Promise<FileItem> {
+  const data = await http.patch<Record<string, unknown>, { action: "update"; parent: string }>(`api/objects/${id}`, {
+    action: "update",
+    parent
+  });
+  return normalizeFileItem(data);
+}
+
+export async function trashFile(id: string): Promise<FileItem> {
+  const data = await http.patch<Record<string, unknown>, { action: "trash" }>(`api/objects/${id}`, {
+    action: "trash"
+  });
+  return normalizeFileItem(data);
+}
+
+export async function batchRestoreFiles(ids: string[]): Promise<void> {
+  await Promise.all(ids.map((id) => restoreFile(id)));
+}
+
+export async function batchDeleteFilesPermanently(ids: string[]): Promise<void> {
+  await http.delete<{ deleted: number }>("api/objects/batch", {
+    data: { ids }
+  });
+}
+
+export async function emptyTrash(): Promise<void> {
+  const trashed = await getFileList({ status: "trashed", page: 1, pageSize: 500 });
+  const ids = trashed.items.map((item) => item.id);
+  if (!ids.length) return;
+  await batchDeleteFilesPermanently(ids);
 }

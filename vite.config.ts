@@ -9,6 +9,10 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [vue(), tailwindcss()],
+    test: {
+      environment: "node",
+      globals: true
+    },
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url))
