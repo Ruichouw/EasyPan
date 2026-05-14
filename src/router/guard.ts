@@ -18,7 +18,7 @@ export function setupRouterGuard(router: Router) {
     }
 
     if (PUBLIC_PATHS.has(to.path) && token) {
-      const redirect = typeof to.query.redirect === "string" ? to.query.redirect : "/dashboard";
+      const redirect = typeof to.query.redirect === "string" ? to.query.redirect : "/files";
       return redirect;
     }
 
@@ -26,7 +26,7 @@ export function setupRouterGuard(router: Router) {
     if (permissionCode) {
       const permissionStore = usePermissionStore(pinia);
       if (!permissionStore.hasPermission(permissionCode)) {
-        return "/dashboard";
+        return "/files";
       }
     }
 

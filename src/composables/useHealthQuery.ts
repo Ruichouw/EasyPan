@@ -7,6 +7,7 @@ export function useHealthQuery() {
     queryKey: queryKeys.health,
     queryFn: getSystemHealth,
     staleTime: 15_000,
+    gcTime: 5 * 60_000,
     retry: 1
   });
 }

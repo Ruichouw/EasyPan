@@ -58,12 +58,12 @@ import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import { z } from "zod";
 import { register } from "@/api";
-import { useUserStore } from "@/store/modules/user";
+import { useAuthSessionSync } from "@/composables/useAuthSessionSync";
 import { ApiError } from "@/utils/request";
 
 const router = useRouter();
 const route = useRoute();
-const userStore = useUserStore();
+const { syncSession } = useAuthSessionSync();
 const errorMessage = ref("");
 
 const schema = toTypedSchema(
@@ -96,14 +96,13 @@ const [confirmPassword] = defineField("confirmPassword");
 const onSubmit = handleSubmit(async (values) => {
   errorMessage.value = "";
   try {
-    const result = await register({
+    await register({
       username: values.username,
       email: values.email,
       password: values.password
     });
-
-    userStore.login("session", result.user?.name ?? values.username);
-    const redirect = typeof route.query.redirect === "string" ? route.query.redirect : "/dashboard";
+    await syncSession();
+    const redirect = typeof route.query.redirect === "string" ? route.query.redirect : "/files";
     await router.replace(redirect);
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) {

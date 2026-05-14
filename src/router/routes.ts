@@ -10,13 +10,19 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/",
     component: () => import("@/layout/index.vue"),
-    redirect: "/dashboard",
+    redirect: "/files",
     children: [
       {
-        path: "dashboard",
-        name: "dashboard",
-        meta: { title: "概览", requiresAuth: true } satisfies RouteMetaCustom,
-        component: () => import("@/views/dashboard/index.vue")
+        path: "files",
+        name: "files",
+        meta: { title: "我的文件", requiresAuth: true } satisfies RouteMetaCustom,
+        component: () => import("@/views/files/index.vue")
+      },
+      {
+        path: "trash",
+        name: "trash",
+        meta: { title: "回收站", requiresAuth: true } satisfies RouteMetaCustom,
+        component: () => import("@/views/trash/index.vue")
       },
       {
         path: "user/list",

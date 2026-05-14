@@ -20,6 +20,7 @@
     </div>
 
     <div class="overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <PageState v-if="query.isError.value" class="m-4" tone="error" message="数据加载失败，请稍后重试。" retry-text="重新加载" :on-retry="onRetry" />
       <table class="min-w-full divide-y divide-slate-200 text-sm">
         <thead class="bg-slate-50 text-left text-slate-600">
           <tr>
@@ -33,6 +34,9 @@
         <tbody class="divide-y divide-slate-100">
           <tr v-if="query.isLoading.value">
             <td class="px-4 py-6 text-slate-500" colspan="5">加载中...</td>
+          </tr>
+          <tr v-else-if="query.isError.value">
+            <td class="px-4 py-6 text-slate-400" colspan="5">-</td>
           </tr>
           <tr v-else-if="!query.data.value?.items.length">
             <td class="px-4 py-6 text-slate-500" colspan="5">暂无数据</td>
@@ -81,7 +85,9 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useQuery } from "@tanstack/vue-query";
+import PageState from "@/components/PageState/index.vue";
 import { getUserList } from "@/api";
+import { queryKeys } from "@/constants";
 import { formatDate } from "@/utils/format";
 
 const page = ref(1);
@@ -89,7 +95,13 @@ const pageSize = 10;
 const keyword = ref("");
 const keywordInput = ref("");
 
-const queryKey = computed(() => ["users", page.value, pageSize, keyword.value]);
+const queryKey = computed(() =>
+  queryKeys.users({
+    page: page.value,
+    pageSize,
+    keyword: keyword.value
+  })
+);
 
 const query = useQuery({
   queryKey,
@@ -98,7 +110,10 @@ const query = useQuery({
       page: page.value,
       pageSize,
       keyword: keyword.value
-    })
+    }),
+  staleTime: 30_000,
+  gcTime: 5 * 60_000,
+  retry: 1
 });
 
 function onSearch() {
@@ -112,5 +127,9 @@ function prevPage() {
 
 function nextPage() {
   page.value += 1;
+}
+
+function onRetry() {
+  query.refetch();
 }
 </script>

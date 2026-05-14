@@ -27,29 +27,40 @@ export interface UserListResult {
   pageSize: number;
 }
 
-function buildMockUsers(page: number, pageSize: number, keyword?: string): UserListResult {
-  const all = Array.from({ length: 57 }).map((_, idx) => {
-    const id = String(idx + 1);
-    return {
-      id,
-      name: `user_${id}`,
-      email: `user_${id}@easypan.dev`,
-      status: idx % 5 === 0 ? "disabled" : "active",
-      createdAt: new Date(Date.now() - idx * 86400000).toISOString()
-    } as UserListItem;
-  });
+interface UserListApiPayload {
+  items?: Array<Record<string, unknown>>;
+  list?: Array<Record<string, unknown>>;
+  rows?: Array<Record<string, unknown>>;
+  total?: number;
+  page?: number;
+  pageSize?: number;
+}
 
-  const filtered = keyword
-    ? all.filter((u) => u.name.includes(keyword) || u.email.includes(keyword))
-    : all;
+function toUserStatus(value: unknown): UserListItem["status"] {
+  if (value === "active" || value === 1 || value === "1" || value === true) {
+    return "active";
+  }
+  return "disabled";
+}
 
-  const start = (page - 1) * pageSize;
-  const end = start + pageSize;
+function normalizeUserItem(raw: Record<string, unknown>): UserListItem {
   return {
-    items: filtered.slice(start, end),
-    total: filtered.length,
-    page,
-    pageSize
+    id: String(raw.id ?? raw.userId ?? raw.uid ?? ""),
+    name: String(raw.name ?? raw.username ?? raw.nickname ?? ""),
+    email: String(raw.email ?? ""),
+    status: toUserStatus(raw.status),
+    createdAt: String(raw.createdAt ?? raw.createTime ?? raw.created_at ?? "")
+  };
+}
+
+function normalizeUserListPayload(payload: UserListApiPayload, fallbackPage: number, fallbackPageSize: number): UserListResult {
+  const sourceList = payload.items ?? payload.list ?? payload.rows ?? [];
+  const items = sourceList.map(normalizeUserItem).filter((item) => item.id && item.name);
+  return {
+    items,
+    total: payload.total ?? items.length,
+    page: payload.page ?? fallbackPage,
+    pageSize: payload.pageSize ?? fallbackPageSize
   };
 }
 
@@ -66,15 +77,12 @@ export async function getUserList(query: UserListQuery = {}): Promise<UserListRe
   const pageSize = query.pageSize ?? 10;
   const keyword = query.keyword?.trim();
 
-  try {
-    return await http.get<UserListResult>("api/admin/users", {
-      params: {
-        page,
-        pageSize,
-        keyword
-      }
-    });
-  } catch {
-    return buildMockUsers(page, pageSize, keyword);
-  }
+  const data = await http.get<UserListApiPayload>("api/admin/users", {
+    params: {
+      page,
+      pageSize,
+      keyword
+    }
+  });
+  return normalizeUserListPayload(data, page, pageSize);
 }

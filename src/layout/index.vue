@@ -1,14 +1,13 @@
 <template>
-  <div class="min-h-screen bg-slate-50">
-    <Header />
-    <div class="mx-auto flex max-w-7xl gap-4 p-4">
+  <div class="min-h-screen bg-[#0b111b] text-slate-100">
+    <div class="flex min-h-screen">
       <Sidebar />
-      <main class="min-h-[70vh] flex-1 rounded-2xl bg-white p-4 shadow-sm">
-        <Tabs />
-        <div class="mt-4">
+      <div class="flex min-h-screen flex-1 flex-col">
+        <Header />
+        <main class="flex-1 p-4 lg:p-5">
           <RouterView />
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   </div>
 </template>
@@ -17,5 +16,4 @@
 import { RouterView } from "vue-router";
 import Header from "./Header.vue";
 import Sidebar from "./Sidebar.vue";
-import Tabs from "./Tabs.vue";
 </script>
